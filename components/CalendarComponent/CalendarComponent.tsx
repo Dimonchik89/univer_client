@@ -19,7 +19,11 @@ interface CalendarComponentProps {
 }
 
 const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
-    const [currentDate, setCurrentDate] = useState<Date>(new Date());
+    const [currentDate, setCurrentDate] = useState<Date>(() => {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        return date;
+    });
     const [selectedDay, setSelectedDay] = useState<Date | null>(searchParamsDate || null);
     const [month, setMonth] = useState(() => {
         const now = new Date();
@@ -46,11 +50,11 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
     // ----------------------------------
 
     useEffect(() => {
-        const dateWithUpdatedHours = currentDate.setHours(0, 0, 0, 0);
-        const date = new Date(dateWithUpdatedHours);
-        setSelectedDay(date);
+        // const dateWithUpdatedHours = currentDate.setHours(0, 0, 0, 0);
+        // const date = new Date(dateWithUpdatedHours);
+        setSelectedDay(currentDate);
 
-        router.push(`/events?date=${date.toISOString()}`);
+        router.push(`/events?date=${currentDate.toISOString()}`);
     }, []);
 
     // -----------------------------------
@@ -85,7 +89,6 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
     const onModalClose = () => setOpenModal(false);
 
     const handleSelectEvent = async (data: UniversityEvent) => {
-        // для теста задаю время на одну минуту после клика
         setSelectedEvent(data);
         onModalOpen();
     };

@@ -28,7 +28,7 @@ const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
     }
 
     return (
-        <div className="flex flex-col items-center p-6 bg-gray-50 min-h-screen">
+        <div className="flex flex-col items-center p-6">
             <Card className="w-full mx-auto max-w-xl rounded-2xl shadow-lg border border-gray-200 bg-white">
                 <CardContent className="flex flex-col gap-6 p-6">
                     <div className="flex items-center gap-4">

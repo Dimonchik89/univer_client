@@ -84,7 +84,7 @@ const PushSubscriptionComponent: React.FC<PushSubscriptionComponent> = ({ id }) 
     }
 
     return (
-        <div className="w-full max-w-lg mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mt-6">
+        <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 mt-6">
             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 {subscription ? (
                     <BellRing className="w-6 h-6 text-green-600" />

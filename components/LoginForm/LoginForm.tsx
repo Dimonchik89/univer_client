@@ -151,7 +151,7 @@ const LoginForm = ({ useHandleForm, title, buttonTitle }: LoginFormProps) => {
             <button
                 className="mt-4 w-full flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-50 transition"
                 onClick={() =>
-                    (window.location.href = `${process.env.NEXT_PUBLIC_GOOGLE_LOGIN_URL}/google/login`)
+                    (window.location.href = `${process.env.NEXT_PUBLIC_GOOGLE_LOGIN_URL}/api/auth/google/login`)
                 }
             >
                 <img src="/google-logo.png" alt="google" className="w-5 h-5" />
