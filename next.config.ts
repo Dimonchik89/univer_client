@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    async rewrites() {
+        // Настройка прокси (для работы куки в режиме разработки при production удалить или сменить http://localhost:3005 на url нашего сервера)
+        return [
+            {
+                source: "/api/:path*",
+                destination: "https://03688535bebb.ngrok-free.app/api/:path*", // 💡 NestJS адрес
+            },
+        ];
+    },
 };
 
 export default nextConfig;

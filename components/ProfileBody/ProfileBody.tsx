@@ -1,0 +1,75 @@
+"use client";
+
+import { useContext, useState } from "react";
+import Avatar from "@mui/material/Avatar";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import { useProfileFromCache } from "../../utils/query/profile-query-cache";
+import NotEnter from "../NotEnter/NotEnter";
+import UpdateProfileModal from "../Modal/UpdateProfileModal/UpdateProfileModal";
+import PushSubscriptionComponent from "../PushSubscriptionComponent/PushSubscriptionComponent";
+import { ProfileContext } from "../Wrapper/Wrapper";
+
+interface ProfileBodyProps {
+    decodeToken: { id: string };
+}
+
+const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    // const profile = useProfileFromCache();
+    const profile = useContext(ProfileContext);
+
+    if (!profile) {
+        return <NotEnter />;
+    }
+
+    return (
+        <div className="flex flex-col items-center p-6 bg-gray-50 min-h-screen">
+            <Card className="w-full mx-auto max-w-xl rounded-2xl shadow-lg border border-gray-200 bg-white">
+                <CardContent className="flex flex-col gap-6 p-6">
+                    <div className="flex items-center gap-4">
+                        <Avatar src={profile?.avatarUrl || ""} sx={{ width: 80, height: 80 }} />
+                        <div className="min-w-0">
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                {profile?.firstName} {profile?.lastName}
+                            </h2>
+                            <p className="text-gray-500 long-text-3">{profile?.email}</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 bg-gray-100 rounded-xl shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-800">Роли</h3>
+                            <ul className="mt-2 list-disc list-inside text-gray-600">
+                                {profile?.roles.map((role) => (
+                                    <li key={role.id}>{role.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="p-4 bg-gray-100 rounded-xl shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-800">Группы</h3>
+                            <ul className="mt-2 list-disc list-inside text-gray-600">
+                                {profile?.academic_groups.map((group) => (
+                                    <li key={group.id}>{group.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button className="button-primary" onClick={handleOpen}>
+                        Редагувати профіль
+                    </button>
+                </CardContent>
+            </Card>
+            <PushSubscriptionComponent id={decodeToken?.id || null} />
+
+            <UpdateProfileModal handleClose={handleClose} isOpen={open} profile={profile} />
+        </div>
+    );
+};
+
+export default ProfileBody;
