@@ -4,15 +4,13 @@ import { useContext, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { useProfileFromCache } from "../../utils/query/profile-query-cache";
 import NotEnter from "../NotEnter/NotEnter";
 import UpdateProfileModal from "../Modal/UpdateProfileModal/UpdateProfileModal";
 import PushSubscriptionComponent from "../PushSubscriptionComponent/PushSubscriptionComponent";
 import { ProfileContext } from "../Wrapper/Wrapper";
 import UniversityEventList from "../UniversityEvent/UniversityEventList/UniversityEventList";
 import EventModal from "../Modal/EventModal/EventModal";
-import { UniversityEvent } from "../../types/event";
-import { useDayEvents } from "../../utils/query/event-query";
+import { useDayEventHelper } from "../../hooks/useDayEventHelper";
 
 interface ProfileBodyProps {
     decodeToken: { id: string };
@@ -28,24 +26,8 @@ const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
     const profile = useContext(ProfileContext);
 
     // -----------------------------
-
-    const [currentDate, setCurrentDate] = useState<Date>(() => {
-        const date = new Date();
-        date.setHours(0, 0, 0, 0);
-        return date;
-    });
-    const [selectedEvent, setSelectedEvent] = useState<UniversityEvent | null>(null);
-    const [openModal, setOpenModal] = useState(false);
-
-    const { data: dayEvents, isLoading } = useDayEvents(currentDate);
-
-    const onModalOpen = () => setOpenModal(true);
-    const onModalClose = () => setOpenModal(false);
-
-    const handleSelectEvent = async (data: UniversityEvent) => {
-        setSelectedEvent(data);
-        onModalOpen();
-    };
+    const { dayEvents, handleSelectEvent, isLoading, onModalClose, openModal, selectedEvent } =
+        useDayEventHelper();
 
     // --------------------------------
 
@@ -98,7 +80,14 @@ const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
                 <h1 className="mb-2 text-center font-bold text-xl">
                     Події заплановані на сьогодні:
                 </h1>
-                <UniversityEventList dayEvents={dayEvents} handleSelectEvent={handleSelectEvent} />
+                {isLoading ? (
+                    <h3>Завантаження...</h3>
+                ) : (
+                    <UniversityEventList
+                        dayEvents={dayEvents}
+                        handleSelectEvent={handleSelectEvent}
+                    />
+                )}
             </div>
 
             <EventModal

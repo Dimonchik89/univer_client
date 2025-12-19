@@ -13,17 +13,24 @@ import EventModal from "../Modal/EventModal/EventModal";
 import "./calendar.css";
 import "react-calendar/dist/Calendar.css";
 import UniversityEventList from "../UniversityEvent/UniversityEventList/UniversityEventList";
+import { useDayEventHelper } from "../../hooks/useDayEventHelper";
 
 interface CalendarComponentProps {
     searchParamsDate: Date;
 }
 
 const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
-    const [currentDate, setCurrentDate] = useState<Date>(() => {
-        const date = new Date();
-        date.setHours(0, 0, 0, 0);
-        return date;
-    });
+    const {
+        currentDate,
+        dayEvents,
+        handleSelectEvent,
+        isLoading,
+        onModalClose,
+        openModal,
+        selectedEvent,
+        setCurrentDate,
+    } = useDayEventHelper();
+
     const [selectedDay, setSelectedDay] = useState<Date | null>(searchParamsDate || null);
     const [month, setMonth] = useState(() => {
         const now = new Date();
@@ -33,8 +40,7 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
 
         return formatted;
     });
-    const [openModal, setOpenModal] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<UniversityEvent | null>(null);
+
     const router = useRouter();
 
     const {
@@ -45,13 +51,9 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
         refetch,
     } = useMonthEvents(month);
 
-    const { data: dayEvents, isLoading } = useDayEvents(selectedDay);
-
     // ----------------------------------
 
     useEffect(() => {
-        // const dateWithUpdatedHours = currentDate.setHours(0, 0, 0, 0);
-        // const date = new Date(dateWithUpdatedHours);
         setSelectedDay(currentDate);
 
         router.push(`/events?date=${currentDate.toISOString()}`);
@@ -83,14 +85,6 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
             }
         }
         return null;
-    };
-
-    const onModalOpen = () => setOpenModal(true);
-    const onModalClose = () => setOpenModal(false);
-
-    const handleSelectEvent = async (data: UniversityEvent) => {
-        setSelectedEvent(data);
-        onModalOpen();
     };
 
     useEffect(() => {
