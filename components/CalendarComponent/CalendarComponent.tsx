@@ -140,7 +140,7 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
                 <div className="event-list flex flex-col items-center mt-6 w-full">
                     <h3 className="text-lg font-semibold mb-3">
                         Події на обрану дату{" "}
-                        {currentDate.toLocaleDateString("uk-UA", {
+                        {selectedDay?.toLocaleDateString("uk-UA", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",
