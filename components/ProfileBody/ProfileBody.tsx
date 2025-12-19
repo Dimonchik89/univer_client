@@ -43,7 +43,7 @@ const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-gray-100 rounded-xl shadow-sm">
-                            <h3 className="text-lg font-semibold text-gray-800">Роли</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">Ролi</h3>
                             <ul className="mt-2 list-disc list-inside text-gray-600">
                                 {profile?.roles.map((role) => (
                                     <li key={role.id}>{role.name}</li>
@@ -51,7 +51,7 @@ const ProfileBody = ({ decodeToken }: ProfileBodyProps) => {
                             </ul>
                         </div>
                         <div className="p-4 bg-gray-100 rounded-xl shadow-sm">
-                            <h3 className="text-lg font-semibold text-gray-800">Группы</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">Групи</h3>
                             <ul className="mt-2 list-disc list-inside text-gray-600">
                                 {profile?.academic_groups.map((group) => (
                                     <li key={group.id}>{group.name}</li>
