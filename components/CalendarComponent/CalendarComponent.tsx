@@ -43,6 +43,18 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
 
     const { data: dayEvents, isLoading } = useDayEvents(selectedDay);
 
+    // ----------------------------------
+
+    useEffect(() => {
+        const dateWithUpdatedHours = currentDate.setHours(0, 0, 0, 0);
+        const date = new Date(dateWithUpdatedHours);
+        setSelectedDay(date);
+
+        router.push(`/events?date=${date.toISOString()}`);
+    }, []);
+
+    // -----------------------------------
+
     const handleDayClick = (date: Date) => {
         const searchDate = date.toISOString();
         router.push(`/events?date=${searchDate}`);
@@ -125,7 +137,21 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
 
             {isLoading && <Loader />}
             {dayEvents && (
-                <UniversityEventList dayEvents={dayEvents} handleSelectEvent={handleSelectEvent} />
+                <div className="event-list flex flex-col items-center mt-6 w-full">
+                    <h3 className="text-lg font-semibold mb-3">
+                        Події на обрану дату{" "}
+                        {currentDate.toLocaleDateString("uk-UA", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                        })}
+                        :
+                    </h3>
+                    <UniversityEventList
+                        dayEvents={dayEvents}
+                        handleSelectEvent={handleSelectEvent}
+                    />
+                </div>
             )}
             <EventModal
                 open={openModal}
