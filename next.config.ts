@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/:path*",
-                destination: "https://03688535bebb.ngrok-free.app/api/:path*", // 💡 NestJS адрес
+                destination: "https://0e20cc67fcdb.ngrok-free.app/api/:path*", // 💡 NestJS адрес
             },
         ];
     },
