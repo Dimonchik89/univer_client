@@ -20,9 +20,29 @@ const resourceMap: ResourceMap = {
 export const reactAdminProvider: DataProvider = {
     getList: async (resource, params) => {
         const searchParams = params.pagination;
+        const { q, roles, academic_groups, ...restFilter } = params.filter;
+
+        console.log("restFilter", restFilter);
 
         const endpoint = resourceMap[resource as keyof ResourceMap];
         if (!endpoint) throw new Error(`Unknown resource: ${resource}`);
+
+        if (endpoint === "/api/user") {
+            const { data } = await axiosInstance(`${endpoint}/findAll`, {
+                params: {
+                    page: searchParams?.page,
+                    limit: searchParams?.perPage,
+                    q,
+                    roles,
+                    academic_groups,
+                },
+            });
+
+            return {
+                data: data.results,
+                total: data.total,
+            };
+        }
 
         const { data } = await axiosInstance(`${endpoint}`, {
             params: {
