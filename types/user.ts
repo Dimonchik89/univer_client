@@ -16,3 +16,5 @@ export interface UpdateUser {
     lastName: string;
     email?: string;
 }
+
+export type DecodeToken = { id: string } | null;
