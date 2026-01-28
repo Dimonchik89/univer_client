@@ -43,12 +43,14 @@ export interface MessageResponse {
 
 export interface Message {
     id: string;
-    text: string;
+    encryptedText: string;
     sender: {
         id: string;
         firstName: string;
         lasName: string;
         email: true;
     };
+    iv: string;
+    encryptedKeys: Record<string, string> | any;
     createdAt: string;
 }

@@ -14,5 +14,9 @@ import { getDecodedUserFromCookies } from "../../utils/auth.server";
 export default async function ChatsPage() {
     const decode = await getDecodedUserFromCookies();
 
+    if (!decode) {
+        return <h1>Потрiбно увiйти</h1>;
+    }
+
     return <ChatLayout decodeToken={decode} />;
 }

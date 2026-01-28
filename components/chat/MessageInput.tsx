@@ -18,6 +18,8 @@ export function MessageInput({ onSend }: Props) {
                 placeholder="Написати повідомлення..."
                 onKeyDown={(e) => {
                     if (e.code === "Enter") {
+                        // шуфруем текст
+
                         onSend(text);
                         setText("");
                     }
