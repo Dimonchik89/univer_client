@@ -598,27 +598,65 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
 
     const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
         const container = e.currentTarget;
+        const { scrollTop, scrollHeight, clientHeight } = container;
+
         if (isFetching.current || !activeChat) return;
 
-        if (container.scrollTop === 0 && hasMoreBefore.current && messages.length > 0) {
+        // Скрол вгору — підвантаження історії
+        if (scrollTop === 0 && hasMoreBefore.current && messages.length > 0) {
             isFetching.current = true;
             const firstMsgDate = messages[0].createdAt;
+
             setScrollHeightBeforeUpdate(container.scrollHeight);
+
             isScrollDownload.current = true;
 
             try {
                 const oldMsgs = await axiosInstance.get(
                     `/api/chats/${activeChat}/messages?cursor=${firstMsgDate}&direction=before`
                 );
+
                 if (oldMsgs.data.messages.length > 0) {
+                    // Зберігаємо висоту до оновлення, щоб скрол не "стрибав"
+
                     const prevHeight = container.scrollHeight;
                     setMessages((prev) => [...oldMsgs.data.messages, ...prev]);
+
+                    // Коригуємо скрол після додавання елементів вгору
                     setTimeout(() => {
                         container.scrollTop = container.scrollHeight - prevHeight;
                     }, 0);
                 } else {
                     hasMoreBefore.current = false;
                     isScrollDownload.current = false;
+                }
+            } finally {
+                isFetching.current = false;
+            }
+        }
+
+        const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
+
+        if (isAtBottom && hasMoreAfter.current && !isFetching.current) {
+            // isFetching.current = false;
+            isFetching.current = true;
+            const lastMessageIndex = messages.length - 1;
+            const lastMsgDate = messages[lastMessageIndex].createdAt;
+
+            try {
+                const res = await axiosInstance.get(
+                    `/api/chats/${activeChat}/messages?cursor=${lastMsgDate}&direction=after`
+                );
+
+                const newMsgs = res.data.messages;
+                if (newMsgs.length > 0) {
+                    const lastMessage = messages[messages.length - 1];
+                    setLastReadAt(lastMessage.createdAt);
+
+                    isScrollDownload.current = false;
+                    setMessages((prev) => [...prev, ...newMsgs]);
+                } else {
+                    hasMoreAfter.current = false;
                 }
             } finally {
                 isFetching.current = false;
