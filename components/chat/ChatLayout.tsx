@@ -432,40 +432,7 @@ import {
     importPrivateKey,
 } from "../../lib/crypto/keys";
 import { useChatUsersQuery } from "../../utils/query/chat-users-query";
-
-// Допоміжний компонент для дешифрування тексту в реальному часі
-const DecryptedText = ({
-    msg,
-    myId,
-    privateKey,
-}: {
-    msg: Message;
-    myId: string;
-    privateKey: CryptoKey | null;
-}) => {
-    const [text, setText] = useState<string>("Дешифрування...");
-
-    useEffect(() => {
-        async function decode() {
-            if (!privateKey || !msg.encryptedKeys?.[myId]) {
-                setText("[Помилка доступу: ключ не знайдено]");
-                return;
-            }
-
-            try {
-                const aesKey = await decryptAESKeyFromBase64(msg.encryptedKeys[myId], privateKey);
-
-                const decrypted = await decryptMessage(msg.encryptedText, msg.iv, aesKey);
-                setText(decrypted);
-            } catch (e) {
-                setText("[Помилка дешифрування]");
-            }
-        }
-        decode();
-    }, [msg, myId, privateKey]);
-
-    return <span>{text}</span>;
-};
+import ChatDecryptedText from "./ChatDecryptedText";
 
 interface ChatLayoutProps {
     decodeToken: DecodeToken;
@@ -514,6 +481,20 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
         const initSocket = async () => {
             const { data } = await axiosInstance.get("/api/chats/socket-token");
             const socket = connectSocket(data.token);
+
+            socket.on("connect_error", async (err) => {
+                if (
+                    err.message === "Invalid or expired token" ||
+                    err.message === "Authentication token missing"
+                ) {
+                    console.warn("Socket token expired, refreshing...");
+
+                    const { data } = await axiosInstance.get("/socket-token");
+
+                    (socket.auth as any).token = data.token;
+                    socket.connect();
+                }
+            });
 
             socket.on("connect", () => {
                 if (activeChat) socket.emit("join_chat", activeChat);
@@ -578,19 +559,19 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
         container.scrollTop = container.scrollHeight;
     }, [messages]);
 
-    useEffect(() => {
-        const container = scrollRef.current;
-        if (!container || !activeChat) return;
+    // useEffect(() => {
+    //     const container = scrollRef.current;
+    //     if (!container || !activeChat) return;
 
-        const onScroll = () => {
-            if (!isScrolledToBottom(container) || !messages.length) return;
-            const lastMessage = messages[messages.length - 1];
-            axiosInstance.post(`/api/chats/${activeChat}/read`, { lastMessageId: lastMessage.id });
-            setLastReadAt(lastMessage.createdAt);
-        };
-        container.addEventListener("scroll", onScroll);
-        return () => container.removeEventListener("scroll", onScroll);
-    }, [messages, activeChat]);
+    //     const onScroll = () => {
+    //         if (!isScrolledToBottom(container) || !messages.length) return;
+    //         const lastMessage = messages[messages.length - 1];
+    //         axiosInstance.post(`/api/chats/${activeChat}/read`, { lastMessageId: lastMessage.id });
+    //         setLastReadAt(lastMessage.createdAt);
+    //     };
+    //     container.addEventListener("scroll", onScroll);
+    //     return () => container.removeEventListener("scroll", onScroll);
+    // }, [messages, activeChat]);
 
     function isScrolledToBottom(el: HTMLDivElement) {
         return el.scrollHeight - el.scrollTop - el.clientHeight < 40;
@@ -635,15 +616,20 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
             }
         }
 
-        const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 50;
+        const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 1;
 
         if (isAtBottom && hasMoreAfter.current && !isFetching.current) {
-            // isFetching.current = false;
             isFetching.current = true;
             const lastMessageIndex = messages.length - 1;
             const lastMsgDate = messages[lastMessageIndex].createdAt;
 
             try {
+                const lastMessage = messages[messages.length - 1];
+                axiosInstance.post(`/api/chats/${activeChat}/read`, {
+                    lastMessageId: lastMessage.id,
+                });
+                setLastReadAt(lastMessage.createdAt);
+
                 const res = await axiosInstance.get(
                     `/api/chats/${activeChat}/messages?cursor=${lastMsgDate}&direction=after`
                 );
@@ -718,7 +704,7 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                                                 {msg.sender.firstName || msg.sender.email}
                                             </div>
                                             <div className="text-sm leading-relaxed break-words">
-                                                <DecryptedText
+                                                <ChatDecryptedText
                                                     msg={msg}
                                                     myId={decodeToken!.id}
                                                     privateKey={myPrivateKey}
