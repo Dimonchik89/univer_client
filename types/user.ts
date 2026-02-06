@@ -18,3 +18,10 @@ export interface UpdateUser {
 }
 
 export type DecodeToken = { id: string } | null;
+
+export interface UserResponse {
+    results: UserProfile[];
+    total: number;
+    page: number;
+    limit: number;
+}

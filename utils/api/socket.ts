@@ -6,9 +6,7 @@ export function connectSocket(token: string) {
     socket = io("http://localhost:3005", {
         auth: { token },
         reconnection: true,
-        // extraHeaders: {
-        //     Authorization: `Bearer ${token}`,
-        // },
+        autoConnect: false,
     });
 
     // socket.on("connect_error", (err) => {
@@ -19,6 +17,6 @@ export function connectSocket(token: string) {
     return socket;
 }
 
-export function getSocket() {
-    return socket;
-}
+// export function getSocket() {
+//     return socket;
+// }

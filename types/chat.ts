@@ -38,7 +38,7 @@ export interface Chat {
 
 export interface MessageResponse {
     messages: Message[];
-    lastReadAt: number;
+    lastReadAt: Date;
 }
 
 export interface Message {
@@ -52,5 +52,5 @@ export interface Message {
     };
     iv: string;
     encryptedKeys: Record<string, string> | any;
-    createdAt: string;
+    createdAt: Date;
 }

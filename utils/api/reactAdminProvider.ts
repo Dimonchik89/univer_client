@@ -1,13 +1,14 @@
 import axios from "axios";
 import { DataProvider, UpdateParams } from "react-admin";
 import axiosInstance from "../axios/axios-interceptor";
-import { UserProfile } from "../../types/user";
+import { UserProfile, UserResponse } from "../../types/user";
 
 interface ResourceMap {
     user: string;
     role: string;
     "academic-group": string;
     event: string;
+    chat: string;
 }
 
 const resourceMap: ResourceMap = {
@@ -15,6 +16,7 @@ const resourceMap: ResourceMap = {
     role: "/api/role",
     "academic-group": "/api/academic-group",
     event: "/api/event",
+    chat: "/api/chats/for-admin",
 };
 
 export const reactAdminProvider: DataProvider = {
@@ -22,19 +24,30 @@ export const reactAdminProvider: DataProvider = {
         const searchParams = params.pagination;
         const { q, roles, academic_groups, ...restFilter } = params.filter;
 
-        console.log("restFilter", restFilter);
-
         const endpoint = resourceMap[resource as keyof ResourceMap];
         if (!endpoint) throw new Error(`Unknown resource: ${resource}`);
 
         if (endpoint === "/api/user") {
-            const { data } = await axiosInstance(`${endpoint}/findAll`, {
+            const { data } = await axiosInstance<UserResponse>(`${endpoint}/findAll`, {
                 params: {
                     page: searchParams?.page,
                     limit: searchParams?.perPage,
                     q,
                     roles,
                     academic_groups,
+                },
+            });
+
+            return {
+                data: data.results,
+                total: data.total,
+            };
+        }
+        if (endpoint === "/api/chats/for-admin") {
+            const { data } = await axiosInstance(`${endpoint}`, {
+                params: {
+                    page: searchParams?.page,
+                    limit: searchParams?.perPage,
                 },
             });
 
@@ -61,11 +74,20 @@ export const reactAdminProvider: DataProvider = {
         if (!endpoint) throw new Error(`Unknown resource: ${resource}`);
 
         if (endpoint === "/api/user") {
-            const { data } = await axiosInstance(`${endpoint}/profile-by-admin/${params.id}`);
+            const { data } = await axiosInstance(`${endpoint}/profile-for-admin/${params.id}`);
             return { data };
         }
         if (endpoint === "/api/event") {
-            const { data } = await axiosInstance(`${endpoint}/one-event-by-admin/${params.id}`);
+            const { data } = await axiosInstance(`${endpoint}/one-event-for-admin/${params.id}`);
+            return { data };
+        }
+        console.log(endpoint);
+
+        //
+        if (endpoint === "/api/chats/for-admin/") {
+            const { data } = await axiosInstance(`${endpoint}${params.id}`);
+            console.log("data", data);
+
             return { data };
         }
         const { data } = await axiosInstance(`${endpoint}/${params.id}`);
@@ -107,7 +129,7 @@ export const reactAdminProvider: DataProvider = {
                 academic_groups: params.data.academic_groups?.map((item: string) => ({ id: item })),
             };
 
-            const { data } = await axiosInstance.post(`${endpoint}/create-by-admin`, payload);
+            const { data } = await axiosInstance.post(`${endpoint}/create-for-admin`, payload);
             return { data };
         }
         if (endpoint === "/api/event") {
@@ -138,7 +160,7 @@ export const reactAdminProvider: DataProvider = {
             };
 
             const { data } = await axiosInstance.patch(
-                `${endpoint}/update-by-admin/${params.id}`,
+                `${endpoint}/update-for-admin/${params.id}`,
                 payload
             );
             return { data };
@@ -154,6 +176,17 @@ export const reactAdminProvider: DataProvider = {
             };
 
             const { data } = await axiosInstance.patch(`${endpoint}/${params.id}`, payload);
+            return { data };
+        }
+
+        if (endpoint === "/api/chats/for-admin") {
+            // console.log("chatId", params.data.id);
+            // console.log("array users", params.data?.userIds);
+
+            const { data } = await axiosInstance.patch(`${endpoint}/${params.data.id}`, {
+                users: params.data?.userIds,
+            });
+
             return { data };
         }
 

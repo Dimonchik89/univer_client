@@ -10,6 +10,8 @@ import AdminAcademicGroupCreate from "../AcademicGroup/AdminAcademicGroupCreate/
 import AdminEventList from "../Event/AdminEventList/AdminEventList";
 import AdminEventEdit from "../Event/AdminEventEdit/AdminEventEdit";
 import AdminEventCreate from "../Event/AdminEventCreate/AdminEventCreate";
+import AdminChatList from "../Chat/AdminChatList/AdminChatList";
+import AdminChatEdit from "../Chat/AdminChatEdit/AdminChatEdit";
 
 const AdminApp = () => {
     const a = 4;
@@ -42,6 +44,7 @@ const AdminApp = () => {
                 edit={AdminEventEdit}
                 create={AdminEventCreate}
             />
+            <Resource name="chat" list={AdminChatList} edit={AdminChatEdit} />
         </Admin>
     );
 };

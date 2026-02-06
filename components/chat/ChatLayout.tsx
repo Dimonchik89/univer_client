@@ -417,7 +417,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChatList } from "./ChatList";
-import { ChatMember, Message } from "../../types/chat";
+import { Message } from "../../types/chat";
 import { Socket } from "socket.io-client";
 import axiosInstance from "../../utils/axios/axios-interceptor";
 import { connectSocket } from "../../utils/api/socket";
@@ -433,16 +433,21 @@ import {
 } from "../../lib/crypto/keys";
 import { useChatUsersQuery } from "../../utils/query/chat-users-query";
 import ChatDecryptedText from "./ChatDecryptedText";
+import { useGetUserChatsQuery } from "../../utils/query/chats-query";
+import { useUpdateLastReadMessageMutation } from "../../utils/mutation/chat-mutation";
 
 interface ChatLayoutProps {
     decodeToken: DecodeToken;
 }
 
 const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
-    const [chats, setChats] = useState<ChatMember[]>([]);
+    // const [chats, setChats] = useState<ChatMember[]>([]);
+    const { data: chats, isLoading: isChatsLoading, error: chatsError } = useGetUserChatsQuery();
+    const { mutate: mutateLastReadMessageDate } = useUpdateLastReadMessageMutation();
+
     const [activeChat, setActiveChat] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [lastReadAt, setLastReadAt] = useState<string | null>(null);
+    const [lastReadAt, setLastReadAt] = useState<Date | null>(null);
     const [myPrivateKey, setMyPrivateKey] = useState<CryptoKey | null>(null);
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -454,6 +459,14 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
     const sessionEntryTime = useRef<Date>(new Date());
     const activeChatRef = useRef<string | null>(null);
     const [scrollHeightBeforeUpdate, setScrollHeightBeforeUpdate] = useState<number>(0);
+
+    // const [lastReadInChat, setLastReadInChat] = useState<Date | undefined>(undefined);
+    // const { data, isLoading: isMessagesLoading } = useGetChatMessage({
+    //     activeChat,
+    //     msgDate: lastReadInChat,
+    // });
+
+    let isRefreshingToken = false;
 
     const { data: members } = useChatUsersQuery(activeChat);
 
@@ -476,28 +489,41 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
     }, []);
 
     useEffect(() => {
-        axiosInstance.get("/api/chats").then((res) => setChats(res.data));
-
         const initSocket = async () => {
             const { data } = await axiosInstance.get("/api/chats/socket-token");
             const socket = connectSocket(data.token);
+            socket.connect();
+
+            socket.on("connect", () => {
+                console.log("connect");
+
+                if (activeChat) socket.emit("join_chat", activeChat);
+            });
 
             socket.on("connect_error", async (err) => {
+                console.log("Socket connect_error:", err.message);
+
+                if (isRefreshingToken) return;
+
                 if (
                     err.message === "Invalid or expired token" ||
                     err.message === "Authentication token missing"
                 ) {
-                    console.warn("Socket token expired, refreshing...");
+                    isRefreshingToken = true;
 
-                    const { data } = await axiosInstance.get("/socket-token");
+                    try {
+                        const { data } = await axiosInstance.get("/api/chats/socket-token");
+                        socket.auth = {
+                            token: data.token,
+                        };
 
-                    (socket.auth as any).token = data.token;
-                    socket.connect();
+                        socket.connect();
+                    } catch (error) {
+                        console.error("Failed to refresh socket token", error);
+                    } finally {
+                        isRefreshingToken = false;
+                    }
                 }
-            });
-
-            socket.on("connect", () => {
-                if (activeChat) socket.emit("join_chat", activeChat);
             });
 
             socket.on("new_message", (msg: Message) => {
@@ -505,7 +531,9 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                 const container = scrollRef.current;
                 if (container && isScrolledToBottom(container)) {
                     setLastReadAt(msg.createdAt);
-                    axiosInstance.post(`/api/chats/${activeChatRef.current}/read`, {
+
+                    mutateLastReadMessageDate({
+                        activeChatId: activeChatRef.current as string,
                         lastMessageId: msg.id,
                     });
                 }
@@ -531,6 +559,11 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                 setLastReadAt(res.data.lastReadAt);
                 hasMoreAfter.current = res.data.messages.length >= 15;
                 hasMoreBefore.current = true;
+
+                // setMessages(data.messages);
+                // setLastReadAt(data.lastReadAt);
+                // hasMoreAfter.current = data.messages.length >= 15;
+                // hasMoreBefore.current = true;
             } finally {
                 isFetching.current = false;
             }
@@ -558,20 +591,6 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
         }
         container.scrollTop = container.scrollHeight;
     }, [messages]);
-
-    // useEffect(() => {
-    //     const container = scrollRef.current;
-    //     if (!container || !activeChat) return;
-
-    //     const onScroll = () => {
-    //         if (!isScrolledToBottom(container) || !messages.length) return;
-    //         const lastMessage = messages[messages.length - 1];
-    //         axiosInstance.post(`/api/chats/${activeChat}/read`, { lastMessageId: lastMessage.id });
-    //         setLastReadAt(lastMessage.createdAt);
-    //     };
-    //     container.addEventListener("scroll", onScroll);
-    //     return () => container.removeEventListener("scroll", onScroll);
-    // }, [messages, activeChat]);
 
     function isScrolledToBottom(el: HTMLDivElement) {
         return el.scrollHeight - el.scrollTop - el.clientHeight < 40;
@@ -625,7 +644,8 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
 
             try {
                 const lastMessage = messages[messages.length - 1];
-                axiosInstance.post(`/api/chats/${activeChat}/read`, {
+                mutateLastReadMessageDate({
+                    activeChatId: activeChat,
                     lastMessageId: lastMessage.id,
                 });
                 setLastReadAt(lastMessage.createdAt);
@@ -657,6 +677,14 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
         }
     }, [messages]);
 
+    if (isChatsLoading) {
+        return <h2>Завантаження...</h2>;
+    }
+
+    if (chatsError) {
+        return <h2>Спробуйте оновити сторiнку пiзнiше! {chatsError.message}</h2>;
+    }
+
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
             <ChatList
@@ -672,7 +700,7 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                         ref={scrollRef}
                         onScroll={handleScroll}
                     >
-                        {messages.map((msg, index) => {
+                        {messages?.map((msg, index) => {
                             const isFirstUnread =
                                 messages.length === 30 &&
                                 lastReadAt &&

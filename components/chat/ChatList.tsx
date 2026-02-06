@@ -3,7 +3,7 @@
 import { Chat, ChatMember } from "../../types/chat";
 
 interface Props {
-    chats: ChatMember[];
+    chats: ChatMember[] | undefined;
     activeChatId?: string;
     onSelect: (chatId: string) => void;
 }
@@ -13,7 +13,7 @@ export function ChatList({ chats, activeChatId, onSelect }: Props) {
 
     return (
         <div className="w-80 border-r overflow-y-auto pb-10">
-            {chats.map((item) => (
+            {chats?.map((item) => (
                 <div
                     key={item.id}
                     onClick={() => onSelect(item.chat.id)}
