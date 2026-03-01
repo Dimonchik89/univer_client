@@ -12,6 +12,9 @@ import AdminEventEdit from "../Event/AdminEventEdit/AdminEventEdit";
 import AdminEventCreate from "../Event/AdminEventCreate/AdminEventCreate";
 import AdminChatList from "../Chat/AdminChatList/AdminChatList";
 import AdminChatEdit from "../Chat/AdminChatEdit/AdminChatEdit";
+import ScheduleTableCreate from "../ScheduleTable/ScheduleTableCreate/ScheduleTableCreate";
+import ScheduleTableList from "../ScheduleTable/ScheduleTableList/ScheduleTableList";
+import AcademicGroupList from "../AcademicGroup/AcademicGroupList/AcademicGroupList";
 
 const AdminApp = () => {
     const a = 4;
@@ -20,7 +23,6 @@ const AdminApp = () => {
         <Admin dataProvider={reactAdminProvider}>
             <Resource
                 name="user"
-                // list={ListGuesser}
                 list={AdminUserList}
                 edit={AdminUserEdit}
                 create={AdminUserCreate}
@@ -34,7 +36,7 @@ const AdminApp = () => {
             />
             <Resource
                 name="academic-group"
-                list={ListGuesser}
+                list={AcademicGroupList}
                 edit={AdminAcademicGroupEdit}
                 create={AdminAcademicGroupCreate}
             />
@@ -45,6 +47,7 @@ const AdminApp = () => {
                 create={AdminEventCreate}
             />
             <Resource name="chat" list={AdminChatList} edit={AdminChatEdit} />
+            <Resource name="schedule-table" list={ScheduleTableList} create={ScheduleTableCreate} />
         </Admin>
     );
 };

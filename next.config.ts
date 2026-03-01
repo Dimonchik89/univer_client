@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
             {
                 source: "/api/:path*",
                 // destination: "https://0e20cc67fcdb.ngrok-free.app/api/:path*", // 💡 NestJS адрес
-                destination: "http://localhost:3005/api/:path*", // 💡 NestJS адрес
+                destination: `${process.env.API_URL}/api/:path*`, // 💡 NestJS адрес
             },
         ];
     },

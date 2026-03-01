@@ -19,7 +19,6 @@ export function MessageInput({ onSend }: Props) {
                 onKeyDown={(e) => {
                     if (e.code === "Enter") {
                         // шуфруем текст
-
                         onSend(text);
                         setText("");
                     }

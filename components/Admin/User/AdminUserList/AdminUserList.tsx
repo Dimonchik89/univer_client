@@ -31,7 +31,7 @@ const AdminUserList = () => {
                 <TextField source="email" label="Пошта" />
                 <TextField source="firstName" label="Ім'я" />
                 <TextField source="lastName" label="Прізвище" />
-                <TextField source="avatarUrl" />
+                {/* <TextField source="avatarUrl" /> */}
                 <FunctionField
                     label="Ролi"
                     render={(item: UserProfile) => item.roles.map((role) => role.name).join(", ")}

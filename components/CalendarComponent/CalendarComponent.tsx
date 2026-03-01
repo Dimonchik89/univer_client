@@ -31,7 +31,6 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
         setCurrentDate,
     } = useDayEventHelper();
 
-    const [selectedDay, setSelectedDay] = useState<Date | null>(searchParamsDate || null);
     const [month, setMonth] = useState(() => {
         const now = new Date();
         const year = now.getFullYear();
@@ -40,6 +39,10 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
 
         return formatted;
     });
+
+    useEffect(() => {
+        console.log("month", month);
+    }, [month]);
 
     const router = useRouter();
 
@@ -54,7 +57,7 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
     // ----------------------------------
 
     useEffect(() => {
-        setSelectedDay(currentDate);
+        setCurrentDate(currentDate);
 
         router.push(`/events?date=${currentDate.toISOString()}`);
     }, []);
@@ -65,7 +68,7 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
         const searchDate = date.toISOString();
         router.push(`/events?date=${searchDate}`);
 
-        setSelectedDay(date);
+        setCurrentDate(date);
     };
 
     const tileClassName = ({ date, view }: { date: Date; view: string }) => {
@@ -133,11 +136,11 @@ const CalendarComponent = ({ searchParamsDate }: CalendarComponentProps) => {
             </div>
 
             {isLoading && <Loader />}
-            {dayEvents && (
+            {dayEvents && currentDate && (
                 <div className="event-list flex flex-col items-center mt-6 w-full">
                     <h3 className="text-lg font-semibold mb-3">
                         Події на обрану дату{" "}
-                        {selectedDay?.toLocaleDateString("uk-UA", {
+                        {currentDate?.toLocaleDateString("uk-UA", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",

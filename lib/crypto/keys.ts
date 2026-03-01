@@ -143,18 +143,34 @@ export async function importPrivateKey(base64: string) {
     );
 }
 
+// export async function encryptForAllMembers(
+//     aesKey: CryptoKey,
+//     members: { userId: string; publicKey: string }[]
+// ) {
+//     const encryptedKeys: Record<string, string> = {};
+
+//     for (const member of members) {
+//         const publicKey = await importPublicKey(member.publicKey);
+
+//         const encrypted = await encryptAESKey(aesKey, publicKey);
+
+//         encryptedKeys[member.userId] = arrayBufferToBase64(encrypted);
+//     }
+
+//     return encryptedKeys;
+// }
 export async function encryptForAllMembers(
     aesKey: CryptoKey,
-    members: { userId: string; publicKey: string }[]
+    members: { userId: string; devices: { deviceId: string; publicKey: string }[] }[]
 ) {
     const encryptedKeys: Record<string, string> = {};
 
     for (const member of members) {
-        const publicKey = await importPublicKey(member.publicKey);
-
-        const encrypted = await encryptAESKey(aesKey, publicKey);
-
-        encryptedKeys[member.userId] = arrayBufferToBase64(encrypted);
+        for (const device of member.devices) {
+            const publicKey = await importPublicKey(device.publicKey);
+            const encrypted = await encryptAESKey(aesKey, publicKey);
+            encryptedKeys[device.deviceId] = arrayBufferToBase64(encrypted);
+        }
     }
 
     return encryptedKeys;

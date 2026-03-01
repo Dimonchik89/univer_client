@@ -19,6 +19,11 @@ export const navigationLinks: NavigationLink[] = [
         path: "/events",
         Icon: Calendar,
     },
+    {
+        name: "Розклад",
+        path: "/schedule",
+        Icon: Calendar,
+    },
     // {
     //     name: "Підписатися",
     //     path: "/dashboard",

@@ -9,6 +9,7 @@ interface ResourceMap {
     "academic-group": string;
     event: string;
     chat: string;
+    "schedule-table": string;
 }
 
 const resourceMap: ResourceMap = {
@@ -17,6 +18,7 @@ const resourceMap: ResourceMap = {
     "academic-group": "/api/academic-group",
     event: "/api/event",
     chat: "/api/chats/for-admin",
+    "schedule-table": "/api/schedule/schedule-table",
 };
 
 export const reactAdminProvider: DataProvider = {
@@ -45,6 +47,20 @@ export const reactAdminProvider: DataProvider = {
         }
         if (endpoint === "/api/chats/for-admin") {
             const { data } = await axiosInstance(`${endpoint}`, {
+                params: {
+                    page: searchParams?.page,
+                    limit: searchParams?.perPage,
+                },
+            });
+
+            return {
+                data: data.results,
+                total: data.total,
+            };
+        }
+
+        if (endpoint === "/api/schedule/schedule-table") {
+            const { data } = await axiosInstance(`${endpoint}/findAll`, {
                 params: {
                     page: searchParams?.page,
                     limit: searchParams?.perPage,
@@ -146,6 +162,23 @@ export const reactAdminProvider: DataProvider = {
             return { data };
         }
 
+        if (endpoint == "/api/schedule/schedule-table") {
+            const payload = {
+                tableId: params.data?.tableId,
+                groupRowIndex: +params.data?.groupRowIndex - 1,
+                indexBeginningDaysOfWeekInTable: {
+                    Monday: +params.data?.Monday - 1,
+                    Tuesday: +params.data?.Tuesday - 1,
+                    Wednesday: +params.data?.Wednesday - 1,
+                    Thursday: +params.data?.Thursday - 1,
+                    Friday: +params.data?.Friday - 1,
+                    Saturday: +params.data?.Saturday - 1,
+                },
+            };
+            const { data } = await axiosInstance.post(`${endpoint}/create`, payload);
+
+            return { data };
+        }
         const { data } = await axiosInstance.post(`${endpoint}`, params.data);
         return { data };
     },
@@ -202,6 +235,7 @@ export const reactAdminProvider: DataProvider = {
             };
         }
         const endpoint = resourceMap[resource as keyof ResourceMap];
+
         const { data } = await axiosInstance.delete(`${endpoint}/${params.id}`);
         return { data };
     },

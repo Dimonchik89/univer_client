@@ -162,3 +162,9 @@ const LoginForm = ({ useHandleForm, title, buttonTitle }: LoginFormProps) => {
 };
 
 export default LoginForm;
+
+// await axios.post("/devices", {
+//     deviceId,
+//     deviceName: navigator.userAgent,
+//     publicKey,
+// });

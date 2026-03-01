@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios, { AxiosError } from "axios";
 import { generateKeyPair, savePrivateKey, savePublicKey } from "../../lib/crypto/keys";
+import { getOrCreateDeviceId } from "../device/deviceId";
+import { generateAndSendKeysForEncryption } from "../api/send-secret-keys";
 
 export const useRegisterMutation = () => {
     const queryClient = useQueryClient();
@@ -11,16 +13,15 @@ export const useRegisterMutation = () => {
 
     return useMutation({
         mutationFn: async (values: { email: string; password: string }) => {
-            const keys = await generateKeyPair();
-            await savePrivateKey(keys.privateKey);
-            const publicKey = await savePublicKey(keys.publicKey); // отправить на сервер в теле
+            // const keys = await generateKeyPair();
+            // await savePrivateKey(keys.privateKey);
+            // const publicKey = await savePublicKey(keys.publicKey); // отправить на сервер в теле
 
             const response = await axios({
                 method: "POST",
                 url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/register`,
                 data: {
                     ...values,
-                    publicKey,
                 },
                 // додав для тестування ngrok
                 headers: {
@@ -30,8 +31,9 @@ export const useRegisterMutation = () => {
             return response.data;
         },
         mutationKey: ["profile"],
-        onSuccess: () => {
-            // router.push("profile");
+        onSuccess: async () => {
+            await generateAndSendKeysForEncryption();
+
             window.location.href = "/";
             queryClient.invalidateQueries({
                 queryKey: ["profile"],

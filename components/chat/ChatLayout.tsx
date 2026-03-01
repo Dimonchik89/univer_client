@@ -468,7 +468,10 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
 
     let isRefreshingToken = false;
 
-    const { data: members } = useChatUsersQuery(activeChat);
+    // перенести чат в другой компонент поскольку из-за их имзенений вызываются повторно чаты
+    const { data: members, refetch: refetchMembers } = useChatUsersQuery(activeChat);
+
+    console.log("members", members);
 
     useEffect(() => {
         activeChatRef.current = activeChat;
@@ -527,6 +530,8 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
             });
 
             socket.on("new_message", (msg: Message) => {
+                console.log("message", msg);
+
                 setMessages((prev) => [...prev, msg]);
                 const container = scrollRef.current;
                 if (container && isScrolledToBottom(container)) {
@@ -538,6 +543,11 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                     });
                 }
             });
+
+            socket.on("chat:keys-updated", async () => {
+                await refetchMembers();
+            });
+
             socketRef.current = socket;
         };
 
@@ -711,6 +721,9 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                                     new Date(messages[index - 1].createdAt) <=
                                         new Date(lastReadAt));
 
+                            const deviceId = localStorage.getItem("deviceId");
+                            // const devices
+
                             return (
                                 <div key={msg.id} id={`msg-${msg.id}`} className="mb-4">
                                     {isFirstUnread && (
@@ -734,7 +747,8 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                                             <div className="text-sm leading-relaxed break-words">
                                                 <ChatDecryptedText
                                                     msg={msg}
-                                                    myId={decodeToken!.id}
+                                                    // myId={decodeToken!.id}
+                                                    myId={deviceId || ""}
                                                     privateKey={myPrivateKey}
                                                 />
                                             </div>
@@ -756,8 +770,12 @@ const ChatLayout = ({ decodeToken }: ChatLayoutProps) => {
                             const encrypted = await encryptMessage(text, aesKey);
 
                             // 3. Шифруємо AES-ключ для кожного учасника чату їхніми Public Keys
-                            const encryptedKeys = await encryptForAllMembers(aesKey, members);
-                            console.log("payload");
+                            const encryptedKeys = await encryptForAllMembers(
+                                aesKey,
+                                members as any
+                            ); // если ок сменить тип на тот какой в encryptForAllMembers
+
+                            // console.log("encryptedKeys, members", members);
 
                             const payload = {
                                 chatId: activeChat,
