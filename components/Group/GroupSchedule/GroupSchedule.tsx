@@ -84,8 +84,9 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
                 {getCurrentWeekType() === "red" ? "🔴 Красная неделя" : "🟢 Зеленая неделя"}
             </div>
 
+            {/* -------- DESKTOP TABLE -------- */}
             <div
-                className={`table`}
+                className={`table desktop-table`}
                 style={{
                     display: "grid",
                     gridTemplateColumns: `80px repeat(${days.length}, 1fr)`,
@@ -113,6 +114,8 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
                                     <div
                                         key={`${day}-${lessonNumber}`}
                                         className={`cell lesson ${lesson?.color || ""}`}
+                                        data-day={dayNames[day]}
+                                        data-pair={lessonNumber}
                                     >
                                         {lesson && (
                                             <>
@@ -144,6 +147,44 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
                         </React.Fragment>
                     );
                 })}
+            </div>
+
+            {/* -------- MOBILE VERSION -------- */}
+
+            <div className="mobile-schedule">
+                {days.map((day) => (
+                    <div key={day} className="day-block">
+                        <h2 className="day-title">{dayNames[day]}</h2>
+
+                        {Array.from({ length: lastPair + 1 }).map((_, index) => {
+                            const lessonNumber = index + 1;
+                            const lesson = getLesson(day, lessonNumber);
+
+                            if (!lesson) return null;
+
+                            return (
+                                <div
+                                    key={`${day}-${lessonNumber}`}
+                                    className={`mobile-lesson ${lesson?.color || ""}`}
+                                >
+                                    <div className="pair-number">{lessonNumber} пара</div>
+
+                                    <div className="lesson-title">{lesson.lesson}</div>
+
+                                    {lesson?.link && (
+                                        <a
+                                            href={lesson.link}
+                                            className="mobile-link"
+                                            target="_blank"
+                                        >
+                                            Посилання
+                                        </a>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ))}
             </div>
         </div>
     );
