@@ -15,6 +15,10 @@ import AdminChatEdit from "../Chat/AdminChatEdit/AdminChatEdit";
 import ScheduleTableCreate from "../ScheduleTable/ScheduleTableCreate/ScheduleTableCreate";
 import ScheduleTableList from "../ScheduleTable/ScheduleTableList/ScheduleTableList";
 import AcademicGroupList from "../AcademicGroup/AcademicGroupList/AcademicGroupList";
+import ScheduleTableEdit from "../ScheduleTable/ScheduleTableEdit/ScheduleTableEdit";
+import ComplaintRoleList from "../ComplaintRole/ComplaintRoleList/ComplaintRoleList";
+import ComplaintRoleCreate from "../ComplaintRole/ComplaintRoleCreate/ComplaintRoleCreate";
+import ComplaintRoleEdit from "../ComplaintRole/ComplaintRoleEdit/ComplaintRoleEdit";
 
 const AdminApp = () => {
     const a = 4;
@@ -47,7 +51,18 @@ const AdminApp = () => {
                 create={AdminEventCreate}
             />
             <Resource name="chat" list={AdminChatList} edit={AdminChatEdit} />
-            <Resource name="schedule-table" list={ScheduleTableList} create={ScheduleTableCreate} />
+            <Resource
+                name="schedule-table"
+                list={ScheduleTableList}
+                create={ScheduleTableCreate}
+                edit={ScheduleTableEdit}
+            />
+            <Resource
+                name="complaint-role"
+                list={ComplaintRoleList}
+                create={ComplaintRoleCreate}
+                edit={ComplaintRoleEdit}
+            />
         </Admin>
     );
 };

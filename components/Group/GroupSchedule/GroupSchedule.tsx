@@ -39,8 +39,10 @@ const dayNames: Record<keyof Schedule, string> = {
 const GroupSchedule = ({ groupName, schedule }: Props) => {
     const [weekType, setWeekType] = useState<WeekType>(getCurrentWeekType());
 
-    let days = Object.keys(schedule) as (keyof Schedule)[];
-    days = days.sort((a, b) => order[a] - order[b]);
+    let days = (Object.keys(schedule) as (keyof Schedule)[])
+        .filter((day) => schedule[day]?.length > 0)
+        .sort((a, b) => order[a] - order[b]);
+    // days = days.sort((a, b) => order[a] - order[b]);
 
     const getLesson = (day: keyof Schedule, lessonNumber: number) => {
         const lesson = schedule[day]?.filter((l) => l.lessonNumber === lessonNumber);
@@ -55,7 +57,7 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
 
     const lastPair = Math.max(
         0,
-        ...days.flatMap((day) => schedule[day].map((item) => item.lessonNumber))
+        ...days.flatMap((day) => schedule[day]?.map((item) => item.lessonNumber))
     );
     console.log("schedule", schedule);
 
@@ -82,7 +84,13 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
                 {getCurrentWeekType() === "red" ? "🔴 Красная неделя" : "🟢 Зеленая неделя"}
             </div>
 
-            <div className="table">
+            <div
+                className={`table`}
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: `80px repeat(${days.length}, 1fr)`,
+                }}
+            >
                 <div className="cell header empty"></div>
                 {days.map((day) => (
                     <div key={`day-${day}`} className="cell header">
@@ -96,7 +104,7 @@ const GroupSchedule = ({ groupName, schedule }: Props) => {
 
                     return (
                         <React.Fragment key={`num-${lessonNumber}`}>
-                            <div className="cell number">{lessonNumber}</div>
+                            <div className="cell  number">{lessonNumber}</div>
 
                             {days.map((day) => {
                                 const lesson = getLesson(day, lessonNumber);

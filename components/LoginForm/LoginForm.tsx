@@ -3,7 +3,6 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { UseMutationResult } from "@tanstack/react-query";
 import { InitialValuesLogin } from "../../types/types";
-import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import {
     FormControl,
@@ -14,7 +13,6 @@ import {
     TextField,
 } from "@mui/material";
 import { EyeOff, Eye } from "lucide-react";
-import { useEffect, useState } from "react";
 import { usePasswordToggle } from "../../hooks/usePasswordToggle";
 
 interface LoginFormProps {

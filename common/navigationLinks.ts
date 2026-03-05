@@ -1,4 +1,13 @@
-import { Calendar, Home, LucideProps, User, MailCheck, House } from "lucide-react";
+import {
+    Calendar,
+    Home,
+    LucideProps,
+    User,
+    MailCheck,
+    House,
+    HatGlasses,
+    MailWarning,
+} from "lucide-react";
 
 export interface NavigationLink {
     name: string;
@@ -23,6 +32,11 @@ export const navigationLinks: NavigationLink[] = [
         name: "Розклад",
         path: "/schedule",
         Icon: Calendar,
+    },
+    {
+        name: "Повiдомити",
+        path: "/anonymous-message",
+        Icon: MailWarning,
     },
     // {
     //     name: "Підписатися",

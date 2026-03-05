@@ -10,6 +10,7 @@ interface ResourceMap {
     event: string;
     chat: string;
     "schedule-table": string;
+    "complaint-role": string;
 }
 
 const resourceMap: ResourceMap = {
@@ -19,6 +20,7 @@ const resourceMap: ResourceMap = {
     event: "/api/event",
     chat: "/api/chats/for-admin",
     "schedule-table": "/api/schedule/schedule-table",
+    "complaint-role": "/api/complaint-role",
 };
 
 export const reactAdminProvider: DataProvider = {
@@ -60,7 +62,7 @@ export const reactAdminProvider: DataProvider = {
         }
 
         if (endpoint === "/api/schedule/schedule-table") {
-            const { data } = await axiosInstance(`${endpoint}/findAll`, {
+            const { data } = await axiosInstance(`${endpoint}`, {
                 params: {
                     page: searchParams?.page,
                     limit: searchParams?.perPage,
@@ -89,6 +91,8 @@ export const reactAdminProvider: DataProvider = {
         const endpoint = resourceMap[resource as keyof ResourceMap];
         if (!endpoint) throw new Error(`Unknown resource: ${resource}`);
 
+        console.log(resource);
+
         if (endpoint === "/api/user") {
             const { data } = await axiosInstance(`${endpoint}/profile-for-admin/${params.id}`);
             return { data };
@@ -97,15 +101,33 @@ export const reactAdminProvider: DataProvider = {
             const { data } = await axiosInstance(`${endpoint}/one-event-for-admin/${params.id}`);
             return { data };
         }
-        console.log(endpoint);
 
         //
-        if (endpoint === "/api/chats/for-admin/") {
-            const { data } = await axiosInstance(`${endpoint}${params.id}`);
+        if (endpoint === "/api/chats/for-admin") {
+            const { data } = await axiosInstance(`${endpoint}/${params.id}`);
             console.log("data", data);
 
             return { data };
         }
+
+        if (endpoint === "/api/schedule/schedule-table") {
+            const { data } = await axiosInstance(`${endpoint}/${params.id}`);
+            console.log("schedule", data);
+
+            return { data };
+        }
+
+        if (endpoint === "/api/complaint-role") {
+            const { data } = await axiosInstance(`${endpoint}/${params.id}`);
+
+            return {
+                data: {
+                    ...data,
+                    userId: data.user?.id,
+                },
+            };
+        }
+
         const { data } = await axiosInstance(`${endpoint}/${params.id}`);
         return { data };
     },
@@ -165,18 +187,30 @@ export const reactAdminProvider: DataProvider = {
         if (endpoint == "/api/schedule/schedule-table") {
             const payload = {
                 tableId: params.data?.tableId,
-                groupRowIndex: +params.data?.groupRowIndex - 1,
+                groupRowIndex: +params.data?.groupRowIndex,
                 indexBeginningDaysOfWeekInTable: {
-                    Monday: +params.data?.Monday - 1,
-                    Tuesday: +params.data?.Tuesday - 1,
-                    Wednesday: +params.data?.Wednesday - 1,
-                    Thursday: +params.data?.Thursday - 1,
-                    Friday: +params.data?.Friday - 1,
-                    Saturday: +params.data?.Saturday - 1,
+                    Monday: +params.data?.Monday,
+                    Tuesday: +params.data?.Tuesday,
+                    Wednesday: +params.data?.Wednesday,
+                    Thursday: +params.data?.Thursday,
+                    Friday: +params.data?.Friday,
+                    Saturday: +params.data?.Saturday,
                 },
             };
-            const { data } = await axiosInstance.post(`${endpoint}/create`, payload);
+            const { data } = await axiosInstance.post(`${endpoint}`, payload);
 
+            return { data };
+        }
+
+        if (endpoint === "/api/complaint-role") {
+            const payload = {
+                name: params.data.name,
+                user: {
+                    id: params.data.userId,
+                },
+            };
+
+            const { data } = await axiosInstance.post(`${endpoint}`, payload);
             return { data };
         }
         const { data } = await axiosInstance.post(`${endpoint}`, params.data);
@@ -220,6 +254,37 @@ export const reactAdminProvider: DataProvider = {
                 users: params.data?.userIds,
             });
 
+            return { data };
+        }
+
+        if (endpoint === "/api/schedule/schedule-table") {
+            const payload = {
+                tableId: params.data?.tableId,
+                groupRowIndex: +params.data?.groupRowIndex,
+                indexBeginningDaysOfWeekInTable: {
+                    Monday: +params.data?.Monday,
+                    Tuesday: +params.data?.Tuesday,
+                    Wednesday: +params.data?.Wednesday,
+                    Thursday: +params.data?.Thursday,
+                    Friday: +params.data?.Friday,
+                    Saturday: +params.data?.Saturday,
+                },
+            };
+
+            const { data } = await axiosInstance.patch(`${endpoint}/${params.id}`, payload);
+
+            return { data };
+        }
+
+        if (endpoint === "/api/complaint-role") {
+            const payload = {
+                name: params?.data?.name,
+                user: {
+                    id: params?.data?.userId,
+                },
+            };
+
+            const { data } = await axiosInstance.patch(`${endpoint}/${params.id}`, payload);
             return { data };
         }
 

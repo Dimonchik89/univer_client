@@ -13,7 +13,6 @@ interface PageParams {
 const page = async ({ searchParams }: PageParams) => {
     const decode = await getDecodedUserFromCookies();
     const { date } = await searchParams;
-    console.log("searchParams", date);
 
     return (
         <Wrapper decodeToken={decode}>

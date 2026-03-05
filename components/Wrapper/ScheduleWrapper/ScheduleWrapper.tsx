@@ -1,24 +1,34 @@
 "use client";
 
 import { useEffect } from "react";
-import { Group, ScheduleResponse } from "../../../types/schedule";
 import { DecodeToken } from "../../../types/user";
 import { useProfileQuery } from "../../../utils/query/profile-query";
 import GroupSchedule from "../../Group/GroupSchedule/GroupSchedule";
 import GroupSelect from "../../Group/GroupSelect/GroupSelect";
 import { useRouter, useSearchParams } from "next/navigation";
+import Loader from "../../Loader/Loader";
+import { groupQuery } from "../../../utils/query/group-query";
+import { scheduleGroupQuery } from "../../../utils/query/schedule-group-query";
 
 interface WrapperProps {
-    groups: { data: { results: Group[] } | null; error: string | null } | null;
-    // schedule: { data: ScheduleResponse | null; error: string | null } | null;
-    schedule: any | null;
+    // groups: { data: { results: Group[] } | null; error: string | null } | null;
+    // schedule: any | null;
     decodeToken: DecodeToken;
 }
 
-const ScheduleWrapper = ({ groups, schedule, decodeToken }: WrapperProps) => {
+const ScheduleWrapper = ({ decodeToken }: WrapperProps) => {
     const router = useRouter();
     const params = useSearchParams();
     const { data: profile } = useProfileQuery(decodeToken);
+
+    const currentGroup = params.get("group") || "";
+    const { data: groups, isLoading, error } = groupQuery();
+
+    const {
+        data: schedule,
+        isLoading: isScheduleLoading,
+        error: scheduleError,
+    } = scheduleGroupQuery({ currentGroup });
 
     useEffect(() => {
         if (profile?.academic_groups.length) {
@@ -27,25 +37,25 @@ const ScheduleWrapper = ({ groups, schedule, decodeToken }: WrapperProps) => {
         }
     }, [profile]);
 
-    // if (schedule.error) {
-    //     toast.error(schedule.error);
-    // }
+    if (isLoading) {
+        return <Loader />;
+    }
+
     return (
         <main className="overflow-x-hidden schedule-wrapper">
-            {groups && groups.error && (
-                <h2 className="text-center mt-10 font-bold">{groups.error}</h2>
-            )}
-            {groups && groups.data && <GroupSelect data={groups.data.results} />}
+            {error && <h2 className="text-center mt-10 font-bold">{error.message}</h2>}
+            {groups && <GroupSelect data={groups.results} />}
 
-            {!schedule ||
+            {isScheduleLoading && <Loader />}
+            {!scheduleError ||
                 (schedule.error && (
-                    <h2 className="text-center mt-10 font-bold">{schedule.error}</h2>
+                    <h2 className="text-center mt-10 font-bold">{scheduleError.message}</h2>
                 ))}
-            {schedule && schedule?.data && (
+            {schedule && (
                 <GroupSchedule
                     // groupName={schedule?.data?.group?.name}
                     groupName={params.get("group") || ""}
-                    schedule={schedule?.data}
+                    schedule={schedule}
                 />
             )}
         </main>

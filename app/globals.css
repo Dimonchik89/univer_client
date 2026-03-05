@@ -114,7 +114,7 @@
 
 .table {
     display: grid;
-    grid-template-columns: 80px repeat(6, 1fr);
+    /* grid-template-columns: 80px repeat(6, 1fr); */
     background: #111827;
     border-radius: 18px;
     overflow: hidden;
@@ -242,4 +242,46 @@
 .group-select option {
     background: #1e293b;
     color: #e2e8f0;
+}
+
+/* --------- datalist ----------- */
+
+.role-field {
+    max-width: 320px;
+    font-family: system-ui, sans-serif;
+}
+
+.role-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: #3f4f46;
+    font-weight: 500;
+}
+
+.role-input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #cfd8d3;
+    background: #f4f7f5;
+    color: #2e3b35;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.role-input::placeholder {
+    color: #8b9b92;
+}
+
+.role-input:hover {
+    border-color: #9fb8ac;
+    background: #eef4f1;
+}
+
+.role-input:focus {
+    border-color: #4e9c7a;
+    box-shadow: 0 0 0 3px rgba(78, 156, 122, 0.2);
+    background: #ffffff;
 }

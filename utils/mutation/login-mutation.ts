@@ -1,10 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "../axios/axios-interceptor";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios, { AxiosError } from "axios";
-import { generateKeyPair, savePrivateKey, savePublicKey } from "../../lib/crypto/keys";
-import { getOrCreateDeviceId } from "../device/deviceId";
 import { generateAndSendKeysForEncryption } from "../api/send-secret-keys";
 
 export const useLoginMutation = () => {

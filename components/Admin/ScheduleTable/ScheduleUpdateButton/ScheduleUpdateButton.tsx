@@ -16,7 +16,7 @@ const ScheduleUpdateButton = () => {
             setLoading(true);
             setSuccess(false);
 
-            await axiosInstance.patch("/api/schedule/update");
+            await axiosInstance.patch("/api/schedule/parse");
 
             setSuccess(true);
 
