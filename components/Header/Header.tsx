@@ -17,7 +17,8 @@ const Header = ({ profile }: HeaderProps) => {
     // const profile = useProfileFromCache();
     const { mutate, data, isSuccess: isSignoutSuccess } = useSignoutMutation();
     const handleSignOut = () => {
-        localStorage.removeItem("deviceId");
+        // Видаляв з локал сторедж deviceId якщо виходив. якщо треба то потрiбно выдаляти ы на серверi
+        // localStorage.removeItem("deviceId");
         mutate();
         router.push("/login");
     };

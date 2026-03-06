@@ -7,6 +7,7 @@ import {
     House,
     HatGlasses,
     MailWarning,
+    MessageCircle,
 } from "lucide-react";
 
 export interface NavigationLink {
@@ -37,6 +38,11 @@ export const navigationLinks: NavigationLink[] = [
         name: "Повiдомити",
         path: "/anonymous-message",
         Icon: MailWarning,
+    },
+    {
+        name: "Чат",
+        path: "/chats",
+        Icon: MessageCircle,
     },
     // {
     //     name: "Підписатися",

@@ -7,6 +7,7 @@ import Loader from "../Loader/Loader";
 import Header from "../Header/Header";
 import BottomNav from "../BottomNav/BottomNav";
 import { UserProfile } from "../../types/user";
+import { getOrCreateDeviceId } from "../../utils/device/deviceId";
 
 export const ProfileContext = createContext<UserProfile | undefined>(undefined);
 

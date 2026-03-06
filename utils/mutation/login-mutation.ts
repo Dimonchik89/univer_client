@@ -23,7 +23,12 @@ export const useLoginMutation = () => {
         },
         mutationKey: ["profile"],
         onSuccess: async (data) => {
-            await generateAndSendKeysForEncryption();
+            const deviceId = localStorage.getItem("deviceId");
+            const privateKey = localStorage.getItem("privateKey");
+
+            if (!deviceId || !privateKey) {
+                await generateAndSendKeysForEncryption();
+            }
 
             window.location.href = "/";
             queryClient.invalidateQueries({

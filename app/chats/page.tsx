@@ -10,6 +10,7 @@ import ChatLayout from "@/components/chat/ChatLayout";
 // import { useProfileFromCache } from "../../utils/query/profile-query-cache";
 import { useProfileQuery } from "../../utils/query/profile-query";
 import { getDecodedUserFromCookies } from "../../utils/auth.server";
+import Wrapper from "../../components/Wrapper/Wrapper";
 
 export default async function ChatsPage() {
     const decode = await getDecodedUserFromCookies();
@@ -18,5 +19,9 @@ export default async function ChatsPage() {
         return <h1>Потрiбно увiйти</h1>;
     }
 
-    return <ChatLayout decodeToken={decode} />;
+    return (
+        <Wrapper decodeToken={decode}>
+            <ChatLayout decodeToken={decode} />
+        </Wrapper>
+    );
 }

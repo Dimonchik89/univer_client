@@ -29,5 +29,6 @@ export const useChatUsersQuery = (activeChat: string | null) => {
             return data;
         },
         enabled: !!activeChat,
+        // refetchInterval: 1000 * 30,
     });
 };
